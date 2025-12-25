@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   home.username = "test";
   home.homeDirectory = "/home/test";
-  system.stateVersion = "25.11";
+  system.stateVersion = "24.11";
 
   home.packages = with pkgs; [
     htop
