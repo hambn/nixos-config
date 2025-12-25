@@ -17,7 +17,7 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  networking.hostName = "bn-laptop"; # Define your hostname.
+  networking.hostName = "bn-pc"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -93,7 +93,6 @@
     users.test = {
       isNormalUser = true;
       description = "test user";
-      group = "test";
       extraGroups = [ "networkmanager" "wheel" ];
       packages = with pkgs; [
       #  thunderbird
