@@ -93,6 +93,7 @@
     users.test = {
       isNormalUser = true;
       description = "test user";
+      group = "test";
       extraGroups = [ "networkmanager" "wheel" ];
       packages = with pkgs; [
       #  thunderbird
