@@ -1,32 +1,25 @@
 { pkgs, ... }: {
   # Bottles - Windows app manager using Wine/Proton
   # Run Windows applications and games on Linux
-  #
-  # IMPORTANT: Bottles from nixpkgs has known issues on NixOS:
-  # - Gets stuck during runtime preparation (step 6/13)
-  # - Fails due to NixOS's non-FHS filesystem structure
-  # - Runners expect /lib64/ld-linux-x86-64.so.2 which doesn't exist
-  #
-  # SOLUTION: Using Flatpak version (installed declaratively)
-  # Bottles is automatically installed via modules/system/pkgmanager/flatpak.nix
-  # The Flatpak version is officially supported and works reliably on NixOS.
-  #
-  # References:
-  # - https://github.com/NixOS/nixpkgs/issues/250159
-  # - https://github.com/bottlesdevs/Bottles/issues/72
-  # - https://docs.usebottles.com/getting-started/installation
-  # - https://github.com/gmodena/nix-flatpak (declarative management)
-
-  # Wine dependencies (useful even with Flatpak Bottles)
-  environment.systemPackages = with pkgs; [
-    wine                  # Wine compatibility layer
-    winetricks            # Install Windows components
-    cabextract            # Extract Windows cabinet files
+  
+  # Install Bottles Flatpak declaratively
+  services.flatpak.packages = lib.mkForce [
+    "com.usebottles.bottles"  # Bottles from Flathub
   ];
 
-  # Enable 32-bit graphics support for Wine/Gaming
-  hardware.graphics.enable32Bit = true;
+  # System packages that help wine & Vulkan/DXVK support
+  environment.systemPackages = with pkgs; [
+    # Wine (32/64 bit)
+    wineWowPackages.stable
+    winetricks
 
-  # Enable gamemode for better gaming performance
-  programs.gamemode.enable = true;
+    # Vulkan support + DXVK/VKD3D support from nixpkgs
+    vulkan-loader
+    vulkan-tools
+    dxvk
+    vkd3d
+  ];
+
+  # 32-bit OpenGL/Vulkan support for wine
+  hardware.opengl.driSupport32Bit = true;
 }
