@@ -76,7 +76,9 @@ This configuration manages the following systems:
 │       ├── virtualisation/
 │       │   ├── docker.nix
 │       │   ├── podman.nix
-│       │   └── bottles.nix
+│       │   ├── bottles.nix
+│       │   ├── bottles-mobaxterm.nix
+│       │   └── flatpak.nix
 │       └── tools/
 │           ├── git.nix
 │           ├── htop.nix
