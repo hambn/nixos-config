@@ -42,7 +42,6 @@ This configuration manages the following systems:
 │
 ├── modules/                     # Global reusable modules
 │   ├── hardware/
-│   │   ├── nvidia.nix
 │   │   ├── bluetooth.nix
 │   │   ├── audio.nix
 │   │   └── printers.nix
@@ -50,7 +49,9 @@ This configuration manages the following systems:
 │   │   ├── boot.nix
 │   │   ├── locale.nix
 │   │   ├── networking.nix
-│   │   └── users.nix
+│   │   ├── users.nix
+│   │   └── pkgmanager/
+│   │       └── flatpak.nix
 │   ├── nix/
 │   │   ├── settings.nix
 │   │   ├── gc.nix
@@ -77,9 +78,9 @@ This configuration manages the following systems:
 │       │   ├── docker.nix
 │       │   ├── podman.nix
 │       │   ├── bottles.nix
-│       │   ├── bottles-mobaxterm.nix
-│       │   └── flatpak.nix
+│       │   └── bottles-mobaxterm.nix
 │       └── tools/
+│           ├── common.nix
 │           ├── git.nix
 │           ├── htop.nix
 │           ├── ssh.nix

@@ -11,8 +11,6 @@
 
     # Required libraries and utilities
     cabextract            # Extract Windows cabinet files
-    p7zip                 # Archive support
-    unzip                 # ZIP archive support
 
     # Additional runtime dependencies
     gnutls                # TLS/SSL support

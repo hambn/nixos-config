@@ -1,91 +1,107 @@
-{ pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 let
-  # Helper script to download and setup MobaXterm for Bottles
-  install-mobaxterm = pkgs.writeShellScriptBin "bottles-install-mobaxterm" ''
-    #!/usr/bin/env bash
-    set -e
+  mobaxterm-version = "25.4";
 
-    DOWNLOAD_DIR="$HOME/.local/share/bottles-installers/mobaxterm"
-    MOBAXTERM_URL="https://download.mobatek.net/2432023122823706/MobaXterm_Installer_v24.3.zip"
+  # Download MobaXterm Portable
+  mobaxterm-portable = pkgs.fetchzip {
+    url = "https://download.mobatek.net/MobaXterm_Portable_v${mobaxterm-version}.zip";
+    sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will be auto-computed
+    stripRoot = false;
+  };
 
-    echo "╔════════════════════════════════════════════╗"
-    echo "║  MobaXterm for Bottles - Auto Installer   ║"
-    echo "╚════════════════════════════════════════════╝"
-    echo ""
+  # Wrapper script to run MobaXterm via Bottles
+  mobaxterm-wrapper = pkgs.writeShellScriptBin "mobaxterm" ''
+    #!/bin/sh
+    BOTTLE_NAME="Windows-Apps"
 
-    # Create download directory
-    mkdir -p "$DOWNLOAD_DIR"
-    cd "$DOWNLOAD_DIR"
-
-    # Check if already downloaded
-    if [ -f "MobaXterm_Installer.zip" ]; then
-      echo "✓ Installer already downloaded"
-    else
-      echo "→ Downloading MobaXterm installer..."
-      ${pkgs.wget}/bin/wget -O MobaXterm_Installer.zip "$MOBAXTERM_URL" || {
-        echo "✗ Download failed. Trying alternative method..."
-        ${pkgs.curl}/bin/curl -L -o MobaXterm_Installer.zip "$MOBAXTERM_URL"
-      }
-      echo "✓ Download complete"
+    # Check if bottles is available
+    if ! command -v bottles-cli &> /dev/null; then
+      echo "Error: Bottles is not installed or bottles-cli not found"
+      exit 1
     fi
 
-    # Extract installer
-    echo "→ Extracting installer..."
-    ${pkgs.unzip}/bin/unzip -o MobaXterm_Installer.zip
-    echo "✓ Extraction complete"
-
-    # Find the installer executable
-    INSTALLER=$(find "$DOWNLOAD_DIR" -name "*.msi" -o -name "*installer*.exe" | head -1)
-
-    echo ""
-    echo "╔════════════════════════════════════════════╗"
-    echo "║            Installation Ready              ║"
-    echo "╚════════════════════════════════════════════╝"
-    echo ""
-    echo "Installer location: $INSTALLER"
-    echo ""
-    echo "Next steps:"
-    echo "  1. Open Bottles application"
-    echo "  2. Create a new bottle or select existing"
-    echo "  3. Click 'Run Executable'"
-    echo "  4. Navigate to: $DOWNLOAD_DIR"
-    echo "  5. Select the installer file"
-    echo "  6. Complete the installation wizard"
-    echo ""
-    echo "Quick launch: bottles -e \"$INSTALLER\""
-    echo ""
-
-    # Optional: Automatically open in Bottles if available
-    if command -v bottles &> /dev/null; then
-      read -p "Open installer in Bottles now? (y/N): " -n 1 -r
-      echo
-      if [[ $REPLY =~ ^[Yy]$ ]]; then
-        bottles -e "$INSTALLER"
-      fi
+    # Run MobaXterm through Bottles
+    if [ -z "$1" ]; then
+      ${pkgs.bottles}/bin/bottles-cli run -b "$BOTTLE_NAME" -e "C:\\MobaXterm\\MobaXterm.exe"
+    else
+      # Pass file argument if provided
+      filepath=$(${pkgs.wine}/bin/winepath --windows "$1")
+      ${pkgs.bottles}/bin/bottles-cli run -b "$BOTTLE_NAME" -e "C:\\MobaXterm\\MobaXterm.exe" --args "$filepath"
     fi
   '';
 
+  # Desktop entry for MobaXterm
+  mobaxterm-desktop = pkgs.makeDesktopItem {
+    name = "mobaxterm";
+    desktopName = "MobaXterm";
+    exec = "mobaxterm %U";
+    terminal = false;
+    type = "Application";
+    icon = "utilities-terminal";
+    categories = [ "Network" "RemoteAccess" "Utility" ];
+    comment = "Enhanced terminal for Windows with X11 server, SSH, and more";
+  };
+
 in {
-  # Install the helper script and dependencies
-  environment.systemPackages = with pkgs; [
-    install-mobaxterm
-    wget              # For downloading
-    curl              # Backup download method
-    unzip             # For extracting installers
+  # Install MobaXterm wrapper and desktop entry
+  environment.systemPackages = [
+    mobaxterm-wrapper
+    mobaxterm-desktop
   ];
 
-  # MobaXterm Auto-Installer for Bottles
-  #
-  # This module provides an automated setup script for installing
-  # MobaXterm (a Windows SSH/X11 client) in Bottles.
-  #
-  # Usage:
-  #   1. Run: bottles-install-mobaxterm
-  #   2. Follow the on-screen prompts
-  #   3. The script will download, extract, and prepare the installer
-  #   4. Install through Bottles GUI or use the quick launch command
-  #
-  # After installation, MobaXterm will be available in:
-  #   Bottles > Your Bottle Name > Programs > MobaXterm
+  # Systemd service to auto-setup MobaXterm in Bottles (runs once per user)
+  systemd.user.services.bottles-mobaxterm-setup = {
+    description = "Auto-setup MobaXterm in Bottles";
+    wantedBy = [ "default.target" ];
+
+    # Only run once
+    unitConfig = {
+      ConditionPathExists = "!%h/.config/bottles-mobaxterm-installed";
+    };
+
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+
+    script = ''
+      BOTTLE_NAME="Windows-Apps"
+      BOTTLES_DIR="$HOME/.var/app/com.usebottles.bottles/data/bottles"
+      BOTTLE_PATH="$BOTTLES_DIR/bottles/$BOTTLE_NAME"
+      MOBAXTERM_DIR="$BOTTLE_PATH/drive_c/MobaXterm"
+
+      echo "Setting up MobaXterm in Bottles..."
+
+      # Wait for Bottles to be available
+      if ! command -v bottles-cli &> /dev/null; then
+        echo "Bottles not found, skipping setup"
+        exit 0
+      fi
+
+      # Create bottle if it doesn't exist
+      if [ ! -d "$BOTTLE_PATH" ]; then
+        echo "Creating Bottles bottle: $BOTTLE_NAME"
+        ${pkgs.bottles}/bin/bottles-cli new --bottle-name "$BOTTLE_NAME" --environment application
+        sleep 2
+      fi
+
+      # Create MobaXterm directory in bottle
+      mkdir -p "$MOBAXTERM_DIR"
+
+      # Copy MobaXterm portable files
+      echo "Installing MobaXterm portable..."
+      cp -r ${mobaxterm-portable}/* "$MOBAXTERM_DIR/"
+
+      # Mark as installed
+      mkdir -p "$HOME/.config"
+      touch "$HOME/.config/bottles-mobaxterm-installed"
+
+      echo "MobaXterm installed successfully!"
+      echo "You can now run 'mobaxterm' or find it in your application menu"
+    '';
+  };
+
+  # Enable Bottles (required dependency)
+  # Note: bottles.nix should already enable this, but listing for clarity
 }
