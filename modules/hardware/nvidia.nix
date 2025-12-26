@@ -16,6 +16,7 @@
     powerManagement.enable = true;
 
     # Fine-grained power management (turns off GPU when not in use)
+    # Set to true for laptops with Optimus to save battery
     powerManagement.finegrained = false;
 
     # NVIDIA settings menu
@@ -26,7 +27,8 @@
   };
 
   # For laptops with hybrid graphics (Intel + NVIDIA)
-  # Uncomment and adjust bus IDs as needed
+  # Uncomment and adjust bus IDs as needed (find with: lspci | grep -E "VGA|3D")
+  # Note: Bus IDs are hardware-specific, configure in host file if needed
   # hardware.nvidia.prime = {
   #   offload.enable = true;
   #   offload.enableOffloadCmd = true;

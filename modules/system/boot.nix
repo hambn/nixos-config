@@ -1,7 +1,7 @@
 { ... }: {
   # Bootloader configuration
   boot.loader = {
-    timeout = 5;
+    timeout = 0;  # 0 = skip boot menu, boot immediately
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
   };
