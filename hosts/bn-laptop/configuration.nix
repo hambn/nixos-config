@@ -99,7 +99,7 @@
   #   };
   # };
 
-  # Install firefox - Now configured in modules/apps/browsers/firefox.nix
+  # Install firefox - Now configured in modules/programs/browsers/firefox.nix
   # programs.firefox.enable = true;
 
   # Allow unfree packages - Now configured in modules/nix/settings.nix

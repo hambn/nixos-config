@@ -59,7 +59,7 @@ This configuration manages the following systems:
 │   │   ├── gnome.nix
 │   │   ├── xserver.nix
 │   │   └── fonts.nix
-│   └── apps/
+│   └── programs/
 │       ├── editors/
 │       │   ├── vim.nix
 │       │   ├── nvim.nix
@@ -73,9 +73,10 @@ This configuration manages the following systems:
 │       ├── shell/
 │       │   ├── zsh.nix
 │       │   └── bash.nix
-│       ├── containers/
+│       ├── virtualisation/
 │       │   ├── docker.nix
-│       │   └── podman.nix
+│       │   ├── podman.nix
+│       │   └── bottles.nix
 │       └── tools/
 │           ├── git.nix
 │           ├── htop.nix
