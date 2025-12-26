@@ -1,25 +1,24 @@
-{ pkgs, ... }: {
-  # Bottles - Windows app manager using Wine/Proton
-  # Run Windows applications and games on Linux
-  
-  # Install Bottles Flatpak declaratively
+{ pkgs, lib, ... }: {
+  # Bottles - Windows app manager via Flatpak (declarative install)
   services.flatpak.packages = lib.mkForce [
-    "com.usebottles.bottles"  # Bottles from Flathub
+    "com.usebottles.bottles"
   ];
 
-  # System packages that help wine & Vulkan/DXVK support
+  # System packages to support Wine/Vulkan usage
   environment.systemPackages = with pkgs; [
-    # Wine (32/64 bit)
+    flatpak
+
+    # Wine (32- & 64-bit) helpers
     wineWowPackages.stable
     winetricks
 
-    # Vulkan support + DXVK/VKD3D support from nixpkgs
+    # Vulkan support and translation libs
     vulkan-loader
     vulkan-tools
     dxvk
     vkd3d
   ];
 
-  # 32-bit OpenGL/Vulkan support for wine
+  # 32-bit OpenGL/Vulkan support required for many Wine prefixes
   hardware.opengl.driSupport32Bit = true;
 }

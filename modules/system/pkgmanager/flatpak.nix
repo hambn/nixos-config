@@ -1,19 +1,16 @@
 { pkgs, ... }: {
-  # Flatpak - Universal app distribution system with declarative management
-  # Using nix-flatpak for declarative package installation
-
+  # Flatpak: universal app distribution
   services.flatpak.enable = true;
 
-  # XDG Desktop Portal for flatpak integration
+  # XDG Desktop Portal integration for Flatpak
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
-  # Flatpak remotes (Flathub is added by default)
-  # You can add custom remotes here if needed
+  # Add Flathub remote
   services.flatpak.remotes = [{
-    name = "flathub";
+    name     = "flathub";
     location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
   }];
 }
