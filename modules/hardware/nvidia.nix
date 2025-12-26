@@ -17,7 +17,8 @@
 
     # Fine-grained power management (turns off GPU when not in use)
     # Set to true for laptops with Optimus to save battery
-    powerManagement.finegrained = false;
+    # Configure in host-specific config (false for desktop, true for laptop)
+    # powerManagement.finegrained = false;
 
     # NVIDIA settings menu
     nvidiaSettings = true;
