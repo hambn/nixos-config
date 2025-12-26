@@ -1,7 +1,6 @@
 { pkgs, ... }: {
   virtualisation.podman = {
     enable = true;
-    enableOnBoot = false;
     # dockerCompat = true;  # lets you run 'docker' commands -> uses podman instead
     defaultNetwork.settings.dns_enabled = true;  # containers can resolve each other by name
   };
@@ -14,4 +13,5 @@
   environment.systemPackages = with pkgs; [
     podman-compose
   ];
+
 }
