@@ -29,8 +29,6 @@ This configuration manages the following systems:
 ```
 .
 ├── flake.nix                    # Main flake configuration
-├── configuration.nix            # Legacy configuration (if needed)
-├── hardware-configuration.nix   # Auto-generated hardware config
 │
 ├── hosts/                       # Host-specific configurations
 │   ├── bn-laptop/
