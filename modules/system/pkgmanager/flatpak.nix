@@ -8,6 +8,12 @@
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
 
-  # Add flatpak repo after flatpak is enabled
-  # Run manually once: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+  # Automatically add Flathub repository on system startup
+  systemd.services.flatpak-repo = {
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.flatpak ];
+    script = ''
+      flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    '';
+  };
 }

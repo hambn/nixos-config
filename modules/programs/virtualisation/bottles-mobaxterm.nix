@@ -10,24 +10,30 @@ let
     stripRoot = false;
   };
 
-  # Wrapper script to run MobaXterm via Bottles
+  # Wrapper script to run MobaXterm via Bottles (Flatpak version)
   mobaxterm-wrapper = pkgs.writeShellScriptBin "mobaxterm" ''
     #!/bin/sh
     BOTTLE_NAME="Windows-Apps"
 
-    # Check if bottles is available
-    if ! command -v bottles-cli &> /dev/null; then
-      echo "Error: Bottles is not installed or bottles-cli not found"
+    # Check if Flatpak Bottles is available
+    if ! command -v flatpak &> /dev/null; then
+      echo "Error: Flatpak is not installed"
       exit 1
     fi
 
-    # Run MobaXterm through Bottles
+    if ! flatpak list | grep -q com.usebottles.bottles; then
+      echo "Error: Bottles is not installed via Flatpak"
+      echo "Install with: flatpak install flathub com.usebottles.bottles"
+      exit 1
+    fi
+
+    # Run MobaXterm through Bottles (Flatpak version)
     if [ -z "$1" ]; then
-      ${pkgs.bottles}/bin/bottles-cli run -b "$BOTTLE_NAME" -e "C:\\MobaXterm\\MobaXterm.exe"
+      flatpak run --command=bottles-cli com.usebottles.bottles run -b "$BOTTLE_NAME" -e "C:\\MobaXterm\\MobaXterm.exe"
     else
       # Pass file argument if provided
       filepath=$(${pkgs.wine}/bin/winepath --windows "$1")
-      ${pkgs.bottles}/bin/bottles-cli run -b "$BOTTLE_NAME" -e "C:\\MobaXterm\\MobaXterm.exe" --args "$filepath"
+      flatpak run --command=bottles-cli com.usebottles.bottles run -b "$BOTTLE_NAME" -e "C:\\MobaXterm\\MobaXterm.exe" --args "$filepath"
     fi
   '';
 
@@ -71,19 +77,27 @@ in {
       BOTTLE_PATH="$BOTTLES_DIR/bottles/$BOTTLE_NAME"
       MOBAXTERM_DIR="$BOTTLE_PATH/drive_c/MobaXterm"
 
-      echo "Setting up MobaXterm in Bottles..."
+      echo "Setting up MobaXterm in Bottles (Flatpak)..."
 
-      # Wait for Bottles to be available
-      if ! command -v bottles-cli &> /dev/null; then
-        echo "Bottles not found, skipping setup"
+      # Check if Flatpak Bottles is installed
+      if ! command -v flatpak &> /dev/null; then
+        echo "Flatpak not found, skipping MobaXterm setup"
+        echo "Enable flatpak in your configuration and install Bottles:"
+        echo "  flatpak install flathub com.usebottles.bottles"
+        exit 0
+      fi
+
+      if ! flatpak list | grep -q com.usebottles.bottles; then
+        echo "Bottles (Flatpak) not installed, skipping setup"
+        echo "Install with: flatpak install flathub com.usebottles.bottles"
         exit 0
       fi
 
       # Create bottle if it doesn't exist
       if [ ! -d "$BOTTLE_PATH" ]; then
         echo "Creating Bottles bottle: $BOTTLE_NAME"
-        ${pkgs.bottles}/bin/bottles-cli new --bottle-name "$BOTTLE_NAME" --environment application
-        sleep 2
+        flatpak run --command=bottles-cli com.usebottles.bottles new --bottle-name "$BOTTLE_NAME" --environment application
+        sleep 3
       fi
 
       # Create MobaXterm directory in bottle
