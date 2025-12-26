@@ -131,28 +131,8 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  # NVIDIA - Basic settings now in modules/hardware/nvidia.nix
-  # hardware.graphics.enable = true;
-  # services.xserver.videoDrivers = [ "nvidia" ];
-
-  # hardware.nvidia = {
-  #   modesetting.enable = true;
-  #   open = false;
-  #   powerManagement.enable = true;
-  #   powerManagement.finegrained = true;
-  # };
-
-  # NVIDIA Prime (offload mode - GPU off until needed)
-  # Hardware-specific bus IDs - keep here for this laptop
-  hardware.nvidia.prime = {
-    offload.enable = true;
-    offload.enableOffloadCmd = true;
-    intelBusId = "PCI:0:2:0";
-    nvidiaBusId = "PCI:1:0:0";
-  };
-
-  # Enable fine-grained power management for laptop battery life
-  hardware.nvidia.powerManagement.finegrained = true;
+  # NVIDIA - Now configured in hosts/bn-laptop/modules/nvidia.nix
+  # All NVIDIA settings including Optimus/Prime configuration are in the host-specific module
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
