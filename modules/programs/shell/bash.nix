@@ -4,7 +4,7 @@
     # Bash is enabled by default in NixOS
 
     # Enable bash completion
-    enableCompletion = true;
+    completion.enable = true;
 
     # Bash aliases (uncomment to add)
     # shellAliases = {

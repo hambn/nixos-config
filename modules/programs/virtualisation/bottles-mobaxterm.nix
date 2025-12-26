@@ -6,7 +6,7 @@ let
   # Download MobaXterm Portable
   mobaxterm-portable = pkgs.fetchzip {
     url = "https://download.mobatek.net/MobaXterm_Portable_v${mobaxterm-version}.zip";
-    sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # Will be auto-computed
+    sha256 = "sha256-n4WIADdoCgpErALydkzRZ+QcxL1Vqh/8QE65n6Wz2Bc=";
     stripRoot = false;
   };
 
