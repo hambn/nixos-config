@@ -43,22 +43,45 @@ This configuration manages the following systems:
 │       └── hardware-configuration.nix
 │
 ├── modules/                     # Global reusable modules
-│   ├── system/                  # System-level modules
-│   │   └── nix/
-│   │       └── settings.nix
-│   └── user/                    # User-level modules
-│       ├── browsers/
-│       │   └── firefox.nix
+│   ├── hardware/
+│   │   ├── nvidia.nix
+│   │   ├── bluetooth.nix
+│   │   ├── audio.nix
+│   │   └── printers.nix
+│   ├── system/
+│   │   ├── boot.nix
+│   │   ├── locale.nix
+│   │   ├── networking.nix
+│   │   └── users.nix
+│   ├── nix/
+│   │   ├── settings.nix
+│   │   ├── gc.nix
+│   │   └── optimization.nix
+│   ├── desktop/
+│   │   ├── gnome.nix
+│   │   ├── xserver.nix
+│   │   └── fonts.nix
+│   └── apps/
 │       ├── editors/
-│       │   └── vim.nix
-│       ├── shell-tools/
-│       │   └── git.nix
-│       ├── terminal/
-│       │   └── htop.nix
-│       ├── virtualisation/
+│       │   ├── vim.nix
+│       │   ├── nvim.nix
+│       │   └── vscode.nix
+│       ├── browsers/
+│       │   ├── firefox.nix
+│       │   └── chrome.nix
+│       ├── terminals/
+│       │   ├── alacritty.nix
+│       │   └── kitty.nix
+│       ├── shell/
+│       │   ├── zsh.nix
+│       │   └── bash.nix
+│       ├── containers/
 │       │   ├── docker.nix
 │       │   └── podman.nix
-│       └── vpn/
+│       └── tools/
+│           ├── git.nix
+│           ├── htop.nix
+│           ├── ssh.nix
 │           └── flclash.nix
 │
 └── users/                       # User home-manager configurations
