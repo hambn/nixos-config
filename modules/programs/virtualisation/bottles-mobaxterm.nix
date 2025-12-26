@@ -22,8 +22,9 @@ let
     fi
 
     if ! flatpak list | grep -q com.usebottles.bottles; then
-      echo "Error: Bottles is not installed via Flatpak"
-      echo "Install with: flatpak install flathub com.usebottles.bottles"
+      echo "Error: Bottles is not installed yet"
+      echo "It should auto-install on system rebuild via flatpak.nix"
+      echo "If not, check: flatpak list | grep bottles"
       exit 1
     fi
 
@@ -82,14 +83,14 @@ in {
       # Check if Flatpak Bottles is installed
       if ! command -v flatpak &> /dev/null; then
         echo "Flatpak not found, skipping MobaXterm setup"
-        echo "Enable flatpak in your configuration and install Bottles:"
-        echo "  flatpak install flathub com.usebottles.bottles"
+        echo "Flatpak should be enabled via flatpak.nix module"
         exit 0
       fi
 
       if ! flatpak list | grep -q com.usebottles.bottles; then
-        echo "Bottles (Flatpak) not installed, skipping setup"
-        echo "Install with: flatpak install flathub com.usebottles.bottles"
+        echo "Bottles not installed yet, skipping MobaXterm setup"
+        echo "Bottles should auto-install via flatpak.nix on next login"
+        echo "Will retry on next login attempt"
         exit 0
       fi
 

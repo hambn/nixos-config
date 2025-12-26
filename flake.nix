@@ -52,6 +52,9 @@
       url = "github:StevenBlack/hosts";
       flake = false;  # Not a flake, just raw data
     };
+
+    # nix-flatpak - Declarative Flatpak package management
+    nix-flatpak.url = "github:gmodena/nix-flatpak";
   };
 
 
@@ -138,8 +141,9 @@
         system = "x86_64-linux";
         specialArgs = { inherit inputs host; };  # Make inputs and hostname available to all modules
         modules = [
-          ./hosts/${host}                              # Host-specific configuration
+          ./hosts/${host}                                # Host-specific configuration
           inputs.home-manager.nixosModules.home-manager  # Home Manager integration
+          inputs.nix-flatpak.nixosModules.nix-flatpak    # Declarative Flatpak management
           {
             home-manager = {
               useGlobalPkgs = true;      # Use system-level nixpkgs
