@@ -1,5 +1,7 @@
 { pkgs, ... }: {
-  environment.systemPackages = with pkgs; [
-    nodePackages.claude-code
+  environment.systemPackages = [
+    (pkgs.writeShellScriptBin "claude-code" ''
+      ${pkgs.nodejs}/bin/npx @anthropic-ai/claude-code "$@"
+    '')
   ];
 }
