@@ -1,6 +1,6 @@
-{ pkgs, lib, ... }: {
+{ pkgs, ... }: {
   # Bottles - Windows app manager via Flatpak (declarative install)
-  services.flatpak.packages = lib.mkForce [
+  services.flatpak.packages = [
     "com.usebottles.bottles"
   ];
 

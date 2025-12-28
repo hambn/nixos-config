@@ -1,8 +1,7 @@
 { pkgs, ... }: {
-  # Visual Studio Code
-  environment.systemPackages = with pkgs; [
-    # vscode
-    # Or use the open source version:
-    # vscodium
+  # Visual Studio Code via Flatpak
+  # Using Flatpak for better extension compatibility and marketplace access
+  services.flatpak.packages = [
+    "com.visualstudio.code"
   ];
 }
