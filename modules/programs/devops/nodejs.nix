@@ -1,3 +1,6 @@
 { pkgs, ... }: {
-  environment.systemPackages = [ pkgs.nodejs ];
+  environment.systemPackages = with pkgs; [
+    nodejs
+    npm
+  ];
 }
