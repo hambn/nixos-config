@@ -63,9 +63,13 @@ nix flake check
 │   │   └── printers.nix      # CUPS printing
 │   │
 │   ├── nix/                  # Nix settings
-│   │   ├── settings.nix
+│   │   ├── settings.nix      # Core nix.conf options
 │   │   ├── gc.nix            # Garbage collection
-│   │   └── optimization.nix
+│   │   ├── optimization.nix  # Build performance
+│   │   ├── registry.nix      # Flake registry & nixPath
+│   │   ├── builders.nix      # Remote build machines
+│   │   ├── compat.nix        # nix-ld, FHS, AppImage
+│   │   └── documentation.nix # Man pages, nixos-help
 │   │
 │   ├── system/               # System settings
 │   │   ├── boot.nix
