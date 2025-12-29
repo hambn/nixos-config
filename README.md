@@ -1,246 +1,304 @@
 # NixOS Configuration
 
-A modular, flake-based NixOS configuration with support for multiple hosts and users using Home Manager.
+My personal NixOS setup using Nix Flakes. It supports multiple computers and users.
 
-## Features
+## What's Inside
 
-- **Flake-based configuration** with automatic module discovery
-- **Multi-host support** with per-host configurations
-- **Home Manager integration** for declarative user environments
-- **Modular architecture** for easy customization and reuse
-- **Multiple desktop environments** (GNOME, Hyprland, KDE Plasma)
-- **Comprehensive inputs**:
-  - NixOS unstable and stable channels
-  - Hyprland compositor with Hyprlock
-  - Stylix for system-wide theming
-  - Emacs and Rust overlays
-  - Chaotic Nyx repository
-  - StevenBlack's host blocklist
+- **Flake-based** - Modern Nix with automatic module discovery
+- **Multi-host** - One config for multiple computers (laptop, desktop)
+- **Home Manager** - Manage user settings declaratively
+- **Modular** - One file per program, easy to add or remove
+- **Portable dotfiles** - Config files work on any Linux distro
+
+## Quick Start
+
+```bash
+# Build and apply (replace HOSTNAME with bn-laptop or bn-pc)
+sudo nixos-rebuild switch --flake .#HOSTNAME
+
+# Test without applying
+sudo nixos-rebuild test --flake .#HOSTNAME
+
+# Update all packages
+nix flake update
+
+# Check for errors
+nix flake check
+```
 
 ## Hosts
 
-This configuration manages the following systems:
+| Host | Description |
+|------|-------------|
+| **bn-laptop** | Laptop with NVIDIA Optimus graphics |
+| **bn-pc** | Desktop PC |
 
-- **bn-laptop** - Laptop with NVIDIA Optimus support
-- **bn-pc** - Desktop PC
-
-## Repository Structure
+## Directory Structure
 
 ```
 .
-├── flake.nix                    # Main flake configuration
+├── flake.nix                 # Main config (inputs, hosts, auto-discovery)
 │
-├── hosts/                       # Host-specific configurations
+├── hosts/                    # Computer-specific configs
 │   ├── bn-laptop/
 │   │   ├── default.nix
 │   │   ├── configuration.nix
-│   │   └── hardware-configuration.nix
+│   │   ├── hardware-configuration.nix
+│   │   └── modules/
+│   │       └── nvidia.nix    # Laptop-only NVIDIA setup
 │   └── bn-pc/
 │       ├── default.nix
 │       ├── configuration.nix
 │       └── hardware-configuration.nix
 │
-├── modules/                     # Global reusable modules
-│   ├── hardware/
-│   │   ├── bluetooth.nix
-│   │   ├── audio.nix
-│   │   └── printers.nix
-│   ├── system/
-│   │   ├── boot.nix
-│   │   ├── locale.nix
-│   │   ├── networking.nix
-│   │   ├── users.nix
-│   │   └── pkgmanager/
-│   │       └── flatpak.nix
-│   ├── nix/
-│   │   ├── settings.nix
-│   │   ├── gc.nix
-│   │   └── optimization.nix
-│   ├── desktop/
+├── modules/                  # Shared modules (auto-imported)
+│   ├── desktop/              # Desktop environment
 │   │   ├── gnome.nix
 │   │   ├── xserver.nix
 │   │   └── fonts.nix
-│   └── programs/
-│       ├── editors/
-│       │   ├── vim.nix
-│       │   ├── nvim.nix
-│       │   └── vscode.nix
+│   │
+│   ├── hardware/             # Hardware support
+│   │   ├── audio.nix         # PipeWire audio
+│   │   ├── bluetooth.nix
+│   │   └── printers.nix      # CUPS printing
+│   │
+│   ├── nix/                  # Nix settings
+│   │   ├── settings.nix
+│   │   ├── gc.nix            # Garbage collection
+│   │   └── optimization.nix
+│   │
+│   ├── system/               # System settings
+│   │   ├── boot.nix
+│   │   ├── locale.nix
+│   │   ├── networking.nix
+│   │   └── users.nix
+│   │
+│   └── programs/             # All applications
+│       ├── ai/
+│       │   └── claude-code.nix
 │       ├── browsers/
 │       │   ├── firefox.nix
 │       │   └── chrome.nix
+│       ├── dev/
+│       │   ├── gcc.nix
+│       │   ├── cmake.nix
+│       │   ├── make.nix
+│       │   ├── nodejs.nix
+│       │   ├── binutils.nix
+│       │   └── pkg-config.nix
+│       ├── devops/
+│       │   └── git.nix
+│       ├── editors/
+│       │   ├── vim.nix
+│       │   ├── nvim.nix
+│       │   ├── nano.nix
+│       │   └── vscode.nix
+│       ├── networking/
+│       │   ├── curl.nix
+│       │   ├── wget.nix
+│       │   ├── openssh.nix
+│       │   ├── ssh.nix
+│       │   ├── sshfs.nix
+│       │   ├── sshpass.nix
+│       │   ├── nmap.nix
+│       │   ├── mtr.nix
+│       │   ├── tcpdump.nix
+│       │   ├── traceroute.nix
+│       │   ├── iperf.nix
+│       │   ├── bind.nix
+│       │   ├── whois.nix
+│       │   ├── flclash.nix
+│       │   ├── net-tools.nix
+│       │   ├── iputils.nix
+│       │   └── iproute2.nix
+│       ├── pkgmanager/
+│       │   └── flatpak.nix
+│       ├── shell/
+│       │   ├── bash.nix
+│       │   └── zsh.nix
 │       ├── terminals/
 │       │   ├── alacritty.nix
 │       │   └── kitty.nix
-│       ├── shell/
-│       │   ├── zsh.nix
-│       │   └── bash.nix
-│       ├── virtualisation/
-│       │   ├── docker.nix
-│       │   ├── podman.nix
-│       │   ├── bottles.nix
-│       │   └── bottles-mobaxterm.nix
-│       └── tools/
-│           ├── common.nix
-│           ├── git.nix
-│           ├── htop.nix
-│           ├── ssh.nix
-│           └── flclash.nix
+│       ├── utils/
+│       │   ├── htop.nix
+│       │   ├── btop.nix
+│       │   ├── iotop.nix
+│       │   ├── jq.nix
+│       │   ├── yq.nix
+│       │   ├── grep.nix
+│       │   ├── sed.nix
+│       │   ├── awk.nix
+│       │   ├── tar.nix
+│       │   ├── gzip.nix
+│       │   ├── zip.nix
+│       │   ├── unzip.nix
+│       │   ├── p7zip.nix
+│       │   ├── tree.nix
+│       │   ├── time.nix
+│       │   ├── watch.nix
+│       │   ├── which.nix
+│       │   └── xmlstarlet.nix
+│       └── virtualisation/
+│           ├── docker.nix
+│           ├── podman.nix
+│           └── bottles.nix
 │
-└── users/                       # User home-manager configurations
+└── users/                    # User configs (Home Manager)
     ├── hambn/
     │   └── home.nix
     └── test/
         └── home.nix
 ```
 
-## Installation
+## How It Works
 
-### Fresh Installation
+### Auto-Discovery
 
-1. **Clone this repository:**
+All `.nix` files in `modules/` are automatically found and loaded. No need to edit `flake.nix` when adding new modules.
+
+### Adding a New Program
+
+1. Create a file in the right folder:
    ```bash
-   git clone https://github.com/yourusername/nixos-config.git /etc/nixos
-   cd /etc/nixos
+   touch modules/programs/editors/emacs.nix
    ```
 
-2. **Generate hardware configuration:**
-   ```bash
-   nixos-generate-config --show-hardware-config > hosts/YOUR_HOSTNAME/hardware-configuration.nix
-   ```
-
-3. **Create host configuration:**
-   ```bash
-   mkdir -p hosts/YOUR_HOSTNAME
-   cp hosts/bn-laptop/default.nix hosts/YOUR_HOSTNAME/
-   # Edit the configuration as needed
-   ```
-
-4. **Build and switch:**
-   ```bash
-   sudo nixos-rebuild switch --flake .#YOUR_HOSTNAME
-   ```
-
-### Updating an Existing System
-
-```bash
-# Update flake inputs
-nix flake update
-
-# Rebuild with new configuration
-sudo nixos-rebuild switch --flake .#YOUR_HOSTNAME
-
-# Or test before switching
-sudo nixos-rebuild test --flake .#YOUR_HOSTNAME
-```
-
-## Module Organization
-
-The configuration uses automatic module discovery:
-
-- **Global modules** (`modules/`) are automatically imported for all hosts
-- **Host-specific modules** (`hosts/HOST/modules/`) are imported only for that host
-- **User configurations** (`users/USER/home.nix`) define Home Manager settings
-
-### Adding a New Module
-
-1. Create a `.nix` file in the appropriate directory under `modules/`
-2. The module will be automatically discovered and imported
-3. No need to manually add imports to `flake.nix`
-
-### Adding a New User
-
-1. Create a directory under `users/`:
-   ```bash
-   mkdir -p users/newuser
-   ```
-
-2. Create `users/newuser/home.nix`:
+2. Add your config:
    ```nix
-   { config, pkgs, ... }:
-   {
-     home.username = "newuser";
-     home.homeDirectory = "/home/newuser";
-     home.stateVersion = "25.11";
-
-     # Add user-specific configuration
+   { pkgs, ... }: {
+     # Emacs - Extensible text editor
+     # Configuration: ~/.emacs.d/
+     environment.systemPackages = [ pkgs.emacs ];
    }
    ```
 
-3. Add the user to your host configuration
-4. Rebuild the system
+3. Rebuild:
+   ```bash
+   sudo nixos-rebuild switch --flake .#HOSTNAME
+   ```
 
 ### Adding a New Host
 
-1. Create host directory:
+1. Create host folder:
    ```bash
    mkdir -p hosts/newhost
    ```
 
-2. Generate hardware configuration:
+2. Generate hardware config:
    ```bash
    nixos-generate-config --show-hardware-config > hosts/newhost/hardware-configuration.nix
    ```
 
-3. Create `hosts/newhost/default.nix` and `configuration.nix`
+3. Copy and edit default.nix and configuration.nix from existing host
 
 4. Build:
    ```bash
    sudo nixos-rebuild switch --flake .#newhost
    ```
 
+### Adding a New User
+
+1. Create user folder:
+   ```bash
+   mkdir -p users/newuser
+   ```
+
+2. Create `users/newuser/home.nix`:
+   ```nix
+   { config, pkgs, ... }: {
+     home.username = "newuser";
+     home.homeDirectory = "/home/newuser";
+     home.stateVersion = "24.11";
+   }
+   ```
+
+3. Add user to `modules/system/users.nix`
+
+4. Rebuild
+
+## Flake Inputs
+
+| Input | What it does |
+|-------|--------------|
+| **nixpkgs** | Main packages (unstable) |
+| **nixpkgs-stable** | Stable packages (25.11) |
+| **home-manager** | User environment management |
+| **nix-flatpak** | Declarative Flatpak packages |
+| **hyprland** | Tiling Wayland compositor |
+| **hyprlock** | Screen locker for Hyprland |
+| **plasma-manager** | KDE Plasma settings |
+| **stylix** | System-wide theming |
+| **chaotic** | Chaotic-AUR packages |
+| **emacs-overlay** | Latest Emacs packages |
+| **rust-overlay** | Latest Rust toolchains |
+| **blocklist-hosts** | Ad/malware blocking hosts file |
+
 ## Useful Commands
 
 ```bash
-# Build and switch to new configuration
+# Rebuild and switch
 sudo nixos-rebuild switch --flake .#HOSTNAME
 
-# Test configuration without switching
+# Test without switching
 sudo nixos-rebuild test --flake .#HOSTNAME
 
-# Build configuration (don't activate)
+# Build only (no activation)
 sudo nixos-rebuild build --flake .#HOSTNAME
 
-# Update all flake inputs
+# Update all inputs
 nix flake update
 
-# Update specific input
+# Update one input
 nix flake lock --update-input nixpkgs
 
-# Check flake
+# Check flake syntax
 nix flake check
 
-# Show flake outputs
+# Show what's in the flake
 nix flake show
 
-# Clean old generations
+# Clean old generations (keep last 30 days)
 sudo nix-collect-garbage --delete-older-than 30d
 
-# List generations
+# List all generations
 sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
+
+# Rollback to previous generation
+sudo nixos-rebuild switch --rollback
 ```
 
-## Desktop Environments
+## Config Philosophy
 
-This configuration supports multiple desktop environments:
+1. **Portable dotfiles** - If it can be in `~/.config/`, it should be. This way configs work on any Linux.
 
-- **GNOME** - Full-featured desktop environment
-- **Hyprland** - Dynamic tiling Wayland compositor
-- **KDE Plasma** - Feature-rich desktop with plasma-manager
+2. **Nix for system stuff** - Use Nix only for:
+   - Installing packages
+   - NixOS services
+   - System settings that can't be in dotfiles
+
+3. **One file per app** - Each program gets its own `.nix` file with:
+   - Description comment
+   - Config file location
+   - Available options as comments
 
 ## Hardware Support
 
-- NVIDIA GPU with Optimus support (laptop configuration)
-- PipeWire audio system
-- Printing via CUPS
-- NetworkManager for network connectivity
+- **NVIDIA Optimus** - Hybrid graphics on laptop
+- **PipeWire** - Modern audio system
+- **CUPS** - Printing support
+- **Bluetooth** - Wireless devices
+- **NetworkManager** - Network management
 
-## License
+## Desktop Environments
 
-This configuration is provided as-is for personal use and reference.
+- **GNOME** - Full desktop environment
+- **Hyprland** - Tiling Wayland compositor
+- **KDE Plasma** - Feature-rich desktop (via plasma-manager)
 
 ## Credits
 
 - [NixOS](https://nixos.org/)
 - [Home Manager](https://github.com/nix-community/home-manager)
+- [nix-flatpak](https://github.com/gmodena/nix-flatpak)
 - [Hyprland](https://hyprland.org/)
 - [Stylix](https://github.com/danth/stylix)
