@@ -10,7 +10,7 @@
     # ------------------------------------------------------------------------
 
     # Enable documentation (master switch)
-    enable = true;
+    # enable = true;
 
     # Install documentation to /share/doc
     # doc.enable = true;
@@ -19,14 +19,14 @@
     # Man Pages
     # ------------------------------------------------------------------------
 
-    man = {
-      # Enable man pages
-      enable = true;
+    # man = {
+    #   Enable man pages
+    #   enable = true;
 
-      # Generate man page index for apropos/whatis
-      # Makes `apropos <keyword>` and `man -k <keyword>` work
-      generateCaches = true;
-    };
+    #   Generate man page index for apropos/whatis
+    #   Makes `apropos <keyword>` and `man -k <keyword>` work
+    #   generateCaches = true;
+    # };
 
     # ------------------------------------------------------------------------
     # Info Pages
@@ -41,19 +41,19 @@
 
     # Include developer man pages (section 2, 3)
     # Useful for C/systems programming
-    dev.enable = true;
+    # dev.enable = true;
 
     # ------------------------------------------------------------------------
     # NixOS-Specific Documentation
     # ------------------------------------------------------------------------
 
-    nixos = {
-      # Enable NixOS manual and nixos-help command
-      enable = true;
+    # nixos = {
+    #   Enable NixOS manual and nixos-help command
+    #   enable = true;
 
-      # Include options from all modules (slower eval, more complete)
-      # includeAllModules = true;
-    };
+    #   Include options from all modules (slower eval, more complete)
+    #   includeAllModules = true;
+    # };
   };
 
   # ==========================================================================
@@ -62,10 +62,10 @@
 
   environment.systemPackages = with pkgs; [
     # Linux programmer's manual (syscalls, library functions)
-    man-pages
+    # man-pages
 
     # POSIX man pages
-    man-pages-posix
+    # man-pages-posix
 
     # Nix/NixOS specific
     # nix-doc              # Nix function documentation

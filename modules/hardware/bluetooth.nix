@@ -2,7 +2,7 @@
   # Enable bluetooth
   hardware.bluetooth = {
     enable = true;
-    powerOnBoot = true;
+    powerOnBoot = false;
   };
 
   # Bluetooth manager GUI (for GNOME/GTK desktops)

@@ -11,47 +11,47 @@
   # --------------------------------------------------------------------------
 
   programs.nix-ld = {
-    enable = true;
+    # enable = true;
 
     # Use Rust implementation (faster, smaller)
     # package = pkgs.nix-ld-rs;
 
     # Common libraries that binaries might need
     # These are available to all unpatched binaries via NIX_LD_LIBRARY_PATH
-    libraries = with pkgs; [
-      # Core libraries
-      stdenv.cc.cc.lib    # libstdc++, libgcc_s
-      zlib                # Compression
-      openssl             # SSL/TLS
+    # libraries = with pkgs; [
+    #   Core libraries
+    #   stdenv.cc.cc.lib    # libstdc++, libgcc_s
+    #   zlib                # Compression
+    #   openssl             # SSL/TLS
 
-      # Common dependencies
-      # curl
-      # glib
-      # nss
-      # nspr
-      # atk
-      # cups
-      # libdrm
-      # gtk3
-      # pango
-      # cairo
-      # xorg.libX11
-      # xorg.libXcomposite
-      # xorg.libXdamage
-      # xorg.libXext
-      # xorg.libXfixes
-      # xorg.libXrandr
-      # xorg.libxcb
-      # mesa
-      # expat
-      # libxkbcommon
-      # alsa-lib
+    #   Common dependencies
+    #   curl
+    #   glib
+    #   nss
+    #   nspr
+    #   atk
+    #   cups
+    #   libdrm
+    #   gtk3
+    #   pango
+    #   cairo
+    #   xorg.libX11
+    #   xorg.libXcomposite
+    #   xorg.libXdamage
+    #   xorg.libXext
+    #   xorg.libXfixes
+    #   xorg.libXrandr
+    #   xorg.libxcb
+    #   mesa
+    #   expat
+    #   libxkbcommon
+    #   alsa-lib
 
-      # For Electron apps (VSCode, Discord, etc.)
-      # gdk-pixbuf
-      # libnotify
-      # libappindicator
-    ];
+    #   For Electron apps (VSCode, Discord, etc.)
+    #   gdk-pixbuf
+    #   libnotify
+    #   libappindicator
+    # ];
   };
 
   # --------------------------------------------------------------------------
