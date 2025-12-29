@@ -1,76 +1,48 @@
 {
   description = "hambn NixOS flake config";
 
-  # =============================================================================
-  # INPUTS - External dependencies and package sources
-  # =============================================================================
+  # ==========================================================================
+  # INPUTS
+  # External dependencies fetched by Nix
+  # ==========================================================================
   inputs = {
-    # Main package repositories
+    # NixOS packages (unstable channel)
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11";
 
-    # Chaotic-AUR packages for NixOS
-    chaotic.url = "github:chaotic-cx/nyx";
-
-    # Home Manager - Declarative user environment management
+    # Home Manager - manage user dotfiles and packages
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Hyprland - Dynamic tiling Wayland compositor
-    hyprland = {
-      url = "github:hyprwm/Hyprland/v0.52.2?submodules=true";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Hyprlock - Screen locker for Hyprland
-    hyprlock = {
-      url = "github:hyprwm/hyprlock/v0.9.2";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Plasma Manager - KDE Plasma configuration management
-    plasma-manager = {
-      url = "github:nix-community/plasma-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
-    };
-
-    # Stylix - System-wide theming
-    stylix.url = "github:nix-community/stylix";
-
-    # Emacs overlay - Bleeding edge Emacs packages
-    emacs-overlay = {
-      url = "github:nix-community/emacs-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Rust overlay - Latest Rust toolchains
-    rust-overlay.url = "github:oxalica/rust-overlay";
-
-    # StevenBlack's unified hosts file for ad/malware blocking
-    blocklist-hosts = {
-      url = "github:StevenBlack/hosts";
-      flake = false;  # Not a flake, just raw data
-    };
-
-    # nix-flatpak - Declarative Flatpak package management
+    # nix-flatpak - declarative Flatpak packages
     nix-flatpak.url = "github:gmodena/nix-flatpak";
+
+    # Hyprland - tiling Wayland compositor (for later use)
+    hyprland = {
+      url = "github:hyprwm/Hyprland?submodules=true";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Hyprlock - screen locker for Hyprland (for later use)
+    hyprlock = {
+      url = "github:hyprwm/hyprlock";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
 
-  # =============================================================================
-  # OUTPUTS - System configurations and helper functions
-  # =============================================================================
+  # ==========================================================================
+  # OUTPUTS
+  # System configurations built from inputs
+  # ==========================================================================
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
       lib = nixpkgs.lib;
 
-      # ---------------------------------------------------------------------------
-      # HELPER FUNCTIONS - Automatic discovery of modules, hosts, and users
-      # ---------------------------------------------------------------------------
+      # ------------------------------------------------------------------------
+      # Helper functions for auto-discovery
+      # ------------------------------------------------------------------------
 
-      # Recursively find all .nix files in a directory
-      # Returns a flattened list of paths to all .nix files
+      # Find all .nix files in a directory (recursive)
       findNixFiles = dir:
         let
           entries = builtins.readDir dir;
@@ -83,39 +55,27 @@
            then lib.flatten (lib.mapAttrsToList process entries)
            else [];
 
-      # Find immediate subdirectories only (not recursive)
-      # Returns a list of directory names
+      # Find subdirectories (not recursive)
       findUserDirs = dir:
         if builtins.pathExists dir
         then lib.attrNames (lib.filterAttrs (n: v: v == "directory") (builtins.readDir dir))
         else [];
 
-      # ---------------------------------------------------------------------------
-      # DISCOVERY - Automatically find hosts, modules, and users
-      # ---------------------------------------------------------------------------
+      # ------------------------------------------------------------------------
+      # Auto-discovery paths
+      # ------------------------------------------------------------------------
 
-      # All hosts (from ./hosts directory)
-      hosts = findUserDirs ./hosts;
+      hosts = findUserDirs ./hosts;                              # All hosts
+      globalModules = findNixFiles ./modules;                    # Shared modules
+      globalUsers = findUserDirs ./users;                        # Shared users
+      getHostModules = host: findNixFiles ./hosts/${host}/modules;  # Host-only modules
+      getHostUsers = host: findUserDirs ./hosts/${host}/users;      # Host-only users
 
-      # Global modules (from ./modules directory) - auto-imported for all hosts
-      globalModules = findNixFiles ./modules;
+      # ------------------------------------------------------------------------
+      # Configuration builders
+      # ------------------------------------------------------------------------
 
-      # Global users (from ./users directory) - available to all hosts
-      globalUsers = findUserDirs ./users;
-
-      # Get host-specific modules (from ./hosts/HOST/modules directory)
-      getHostModules = host: findNixFiles ./hosts/${host}/modules;
-
-      # Get host-specific users (from ./hosts/HOST/users directory)
-      getHostUsers = host: findUserDirs ./hosts/${host}/users;
-
-      # ---------------------------------------------------------------------------
-      # CONFIGURATION BUILDERS
-      # ---------------------------------------------------------------------------
-
-      # Build Home Manager user configurations for a specific host
-      # Combines global users and host-specific users
-      # Prefers host-specific home.nix over global home.nix if both exist
+      # Build Home Manager users (host-specific overrides global)
       mkHomeUsers = host:
         let
           allUsers = globalUsers ++ (getHostUsers host);
@@ -131,36 +91,30 @@
             };
         in builtins.listToAttrs (map mkUser allUsers);
 
-      # Build a complete NixOS system configuration for a host
-      # Automatically imports:
-      # - Host-specific configuration (./hosts/HOST)
-      # - Home Manager module with user configurations
-      # - All global modules (./modules/**)
-      # - Host-specific modules (./hosts/HOST/modules/**)
+      # Build NixOS system for a host
       mkHost = host: lib.nixosSystem {
         system = "x86_64-linux";
-        specialArgs = { inherit inputs host; };  # Make inputs and hostname available to all modules
+        specialArgs = { inherit inputs host; };
         modules = [
-          ./hosts/${host}                                # Host-specific configuration
-          inputs.home-manager.nixosModules.home-manager  # Home Manager integration
-          inputs.nix-flatpak.nixosModules.nix-flatpak    # Declarative Flatpak management
+          ./hosts/${host}
+          inputs.home-manager.nixosModules.home-manager
+          inputs.nix-flatpak.nixosModules.nix-flatpak
           {
             home-manager = {
-              useGlobalPkgs = true;      # Use system-level nixpkgs
-              useUserPackages = true;    # Install packages to user profile
-              extraSpecialArgs = { inherit inputs host; };  # Pass inputs to home-manager modules
-              users = mkHomeUsers host;  # User configurations
+              useGlobalPkgs = true;
+              useUserPackages = true;
+              extraSpecialArgs = { inherit inputs host; };
+              users = mkHomeUsers host;
             };
           }
-        ] ++ globalModules ++ (getHostModules host);  # Add all discovered modules
+        ] ++ globalModules ++ (getHostModules host);
       };
 
-    # ---------------------------------------------------------------------------
-    # FINAL OUTPUT - NixOS system configurations
-    # ---------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
+    # Final output
+    # --------------------------------------------------------------------------
     in {
-      # Generate NixOS configurations for all discovered hosts
-      # Usage: nixos-rebuild switch --flake .#HOSTNAME
+      # Usage: sudo nixos-rebuild switch --flake .#HOSTNAME
       nixosConfigurations = builtins.listToAttrs (map (host: {
         name = host;
         value = mkHost host;

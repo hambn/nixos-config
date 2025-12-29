@@ -221,17 +221,10 @@ All `.nix` files in `modules/` are automatically found and loaded. No need to ed
 | Input | What it does |
 |-------|--------------|
 | **nixpkgs** | Main packages (unstable) |
-| **nixpkgs-stable** | Stable packages (25.11) |
 | **home-manager** | User environment management |
 | **nix-flatpak** | Declarative Flatpak packages |
-| **hyprland** | Tiling Wayland compositor |
-| **hyprlock** | Screen locker for Hyprland |
-| **plasma-manager** | KDE Plasma settings |
-| **stylix** | System-wide theming |
-| **chaotic** | Chaotic-AUR packages |
-| **emacs-overlay** | Latest Emacs packages |
-| **rust-overlay** | Latest Rust toolchains |
-| **blocklist-hosts** | Ad/malware blocking hosts file |
+| **hyprland** | Tiling Wayland compositor (for later) |
+| **hyprlock** | Screen locker for Hyprland (for later) |
 
 ## Useful Commands
 
