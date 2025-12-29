@@ -2,86 +2,126 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Build and Deploy Commands
+## Configuration Philosophy
+
+**Prefer portable dotfiles over Nix-managed configs.** If something can be handled in normal dotfiles (`.bashrc`, `.vimrc`, etc.), it should be - this allows the same configs to work across any distro. Use Nix modules only for:
+- Installing packages
+- NixOS-specific services
+- System settings that can't be in dotfiles
+
+User dotfiles will be in a separate repository.
+
+## Commands
 
 ```bash
-# Build and switch to new configuration (replace HOSTNAME with bn-laptop or bn-pc)
-sudo nixos-rebuild switch --flake .#HOSTNAME
+# Build and switch (bn-laptop or bn-pc)
+sudo nixos-rebuild switch --flake .#bn-laptop
 
-# Test configuration without switching (recommended before switch)
-sudo nixos-rebuild test --flake .#HOSTNAME
+# Test without switching
+sudo nixos-rebuild test --flake .#bn-laptop
 
 # Check flake for errors
 nix flake check
 
-# Update all flake inputs
+# Update all inputs
 nix flake update
-
-# Update specific input
-nix flake lock --update-input nixpkgs
 ```
-
-## Configuration Philosophy
-
-**Prefer portable dotfiles over Nix-managed configs.** If something can be handled in normal dotfiles (`.bashrc`, `.vimrc`, etc.), it should be - this allows the same configs to work across any distro. Use Nix modules only for NixOS-specific things (services, packages, system settings). User dotfiles will be in a separate repository.
 
 ## Architecture
 
-This is a NixOS flake-based configuration with **automatic module discovery**. The flake.nix contains a `findNixFiles` function that recursively discovers all `.nix` files under `modules/`, eliminating the need for manual imports.
+NixOS flake with **automatic module discovery** - the `findNixFiles` function in flake.nix recursively finds all `.nix` files under `modules/`. No manual imports needed.
 
-### Key Directories
+### Directory Structure
 
-- **`hosts/`** - Host-specific configurations. Each host has `default.nix`, `configuration.nix`, and `hardware-configuration.nix`. Host-specific modules go in `hosts/HOSTNAME/modules/`.
-- **`modules/`** - Global modules auto-imported for all hosts. Organized by category: `desktop/`, `hardware/`, `nix/`, `programs/`, `system/`.
-- **`users/`** - Home Manager configurations per user (e.g., `users/hambn/home.nix`).
+```
+├── hosts/
+│   ├── bn-laptop/          # Laptop (NVIDIA Optimus)
+│   │   ├── default.nix
+│   │   ├── configuration.nix
+│   │   ├── hardware-configuration.nix
+│   │   └── modules/        # Host-specific modules
+│   └── bn-pc/              # Desktop PC
+│
+├── modules/                # Auto-imported for all hosts
+│   ├── desktop/            # GNOME, xserver, fonts
+│   ├── hardware/           # audio, bluetooth, printers
+│   ├── nix/                # nix settings, gc, optimization
+│   ├── programs/           # All applications (see below)
+│   └── system/             # boot, locale, networking, users
+│
+└── users/                  # Home Manager configs
+    └── hambn/home.nix
+```
 
-### Hosts
+### Programs Structure
 
-- **bn-laptop** - Laptop with NVIDIA Optimus (Prime offload mode)
-- **bn-pc** - Desktop PC
+```
+modules/programs/
+├── ai/              # claude-code (custom npm wrapper)
+├── browsers/        # firefox, chrome
+├── dev/             # gcc, make, cmake, nodejs, etc.
+├── devops/          # git
+├── editors/         # vim, nvim, nano, vscode
+├── networking/      # curl, wget, nmap, ssh, sshfs, etc.
+├── shell/           # bash, zsh
+├── terminals/       # alacritty, kitty
+├── utils/           # htop, jq, grep, sed, tar, zip, etc.
+└── virtualisation/  # bottles (flatpak)
+```
 
-### Module Pattern
+## Module Patterns
 
-Modules follow a simple structure:
+### Simple package
 ```nix
 { pkgs, ... }: {
   environment.systemPackages = [ pkgs.package-name ];
 }
 ```
 
-For services:
-```nix
-{ ... }: {
-  services.servicename.enable = true;
-}
-```
-
-### Adding New Modules
-
-Create a `.nix` file anywhere under `modules/` - it will be automatically discovered and imported. No need to modify flake.nix.
-
-Example: Create `modules/programs/tools/newtool.nix`:
+### Flatpak package
 ```nix
 { pkgs, ... }: {
-  environment.systemPackages = [ pkgs.newtool ];
+  services.flatpak.packages = [ "com.example.app" ];
 }
 ```
 
-### Special Args Available
+### Program with options
+```nix
+{ ... }: {
+  programs.git = {
+    enable = true;
+    config.color.ui = "auto";
+  };
+}
+```
 
-All modules receive `inputs` and `host` as special arguments from the flake.
+### Service
+```nix
+{ ... }: {
+  services.openssh.enable = true;
+}
+```
+
+## Adding New Modules
+
+Create a `.nix` file anywhere under `modules/` - automatically discovered.
+
+**One file per app** - allows app-specific Nix options and custom install logic (like claude-code's npm wrapper).
+
+## Special Args
+
+All modules receive `inputs` and `host` from flake.
 
 ## Git Workflow
 
-- **main** - Production branch (PRs go here)
-- **dev** - Development branch
-- Use `claude/*` prefix for feature branches
-- Semantic commits: `feat:`, `fix:`, `refactor:`, `docs:`
+- **main** - Production (PRs target here)
+- **dev** - Development
+- Prefix: `claude/*` for feature branches
+- Commits: `feat:`, `fix:`, `refactor:`, `docs:`
 
-## Key Flake Inputs
+## Key Inputs
 
-- nixpkgs (unstable) and nixpkgs-stable (25.11)
+- nixpkgs (unstable) + nixpkgs-stable
 - Home Manager
-- nix-flatpak (declarative Flatpak management)
-- Hyprland, Plasma Manager, Stylix (theming)
-- chaotic-nyx (AUR packages for NixOS)
+- nix-flatpak (declarative Flatpak)
+- Hyprland, Plasma Manager, Stylix

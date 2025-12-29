@@ -1,6 +1,8 @@
 { ... }: {
-  # Git version control system
-  # System-wide configuration written to /etc/gitconfig
+  # Git - Distributed version control system
+  # User config: ~/.gitconfig (or ~/.config/git/config)
+  # System config: /etc/gitconfig
+  # Repo config: .git/config (highest priority)
   programs.git = {
     # Enable git (installs package and configures system-wide)
     enable = true;

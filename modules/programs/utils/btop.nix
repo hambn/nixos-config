@@ -2,6 +2,6 @@
   # btop - Resource monitor (modern replacement for htop/top)
   # Shows CPU, memory, disk, network and processes with a modern interface
   # Interactive process viewer with mouse support
-  # Configuration stored in ~/.config/btop/btop.conf
+  # Configuration: ~/.config/btop/btop.conf
   environment.systemPackages = [ pkgs.btop ];
 }

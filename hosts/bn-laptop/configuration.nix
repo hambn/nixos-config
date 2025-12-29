@@ -26,7 +26,7 @@
   # networking.networkmanager.enable = true;
 
   # Set your time zone (host-specific, keep here if different from default)
-  time.timeZone = "Asia/Tehran";
+  # time.timeZone = "Asia/Tehran";
 
   # Select internationalisation properties - Now configured in modules/system/locale.nix
   # i18n.defaultLocale = "en_US.UTF-8";
