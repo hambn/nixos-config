@@ -1,9 +1,9 @@
 { ... }: {
-  # DistroShelf - Linux distribution browser and downloader
-  # Browse, download, and manage Linux distribution ISOs
-  # Data: ~/.var/app/io.github.AJenbo.distroshelf/
+  # DistroShelf - Graphical interface for managing Distrobox containers
+  # Manage and run containerized Linux distributions
+  # Data: ~/.var/app/com.ranfdev.DistroShelf/
   # Uses Flatpak for sandboxing and automatic updates
   services.flatpak.packages = [
-    "io.github.AJenbo.distroshelf"
+    "com.ranfdev.DistroShelf"
   ];
 }
