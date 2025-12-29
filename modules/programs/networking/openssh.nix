@@ -1,6 +1,9 @@
 { ... }: {
-  # OpenSSH client and server
-  # SSH client is available by default on NixOS
+  # OpenSSH - Secure Shell client and server
+  # User config: ~/.ssh/config
+  # User keys: ~/.ssh/id_ed25519, ~/.ssh/id_rsa
+  # Known hosts: ~/.ssh/known_hosts
+  # System config: /etc/ssh/ssh_config (client), /etc/ssh/sshd_config (server)
 
   # SSH client configuration (programs.ssh)
   programs.ssh = {

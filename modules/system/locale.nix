@@ -1,6 +1,6 @@
 { ... }: {
   # Set your time zone (configure in host-specific configuration)
-  # time.timeZone = "America/New_York";
+  time.timeZone = "Asia/Tehran";
 
   # Select internationalisation properties
   i18n.defaultLocale = "en_US.UTF-8";
